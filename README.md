@@ -1,9 +1,8 @@
-# RESTEasy Classic Path Conflict Reproducer
+# RESTEasy Path Conflict Reproducer
 
 *README written by AI, but checked for correctness*
 
-Demonstrates a routing bug in Quarkus 3.29.0 with RESTEasy Classic (`quarkus-resteasy-jsonb`)
-where two root resource classes with overlapping `@Path` annotations cause 404s.
+Demonstrates a routing bug in Quarkus 3.29.0 with RESTEasy (`quarkus-resteasy-jsonb`) where two root resource classes with overlapping `@Path` annotations cause 404s.
 
 ## The bug
 
@@ -13,7 +12,7 @@ Two JAX-RS resources:
 - `ItemLogsResource` with `@Path("items/{id}")` — has sub-resource method `@Path("logs")`
 
 Per the JAX-RS spec (Section 3.7.2), the matching algorithm should accumulate candidate methods
-from **all** matching root resources. In practice, RESTEasy Classic selects `ItemLogsResource`
+from **all** matching root resources. In practice, RESTEasy selects `ItemLogsResource`
 (more specific class-level `@Path`) and only looks for methods within that class:
 
 | Endpoint              | Expected | Actual  | Why                                            |
@@ -28,7 +27,7 @@ from **all** matching root resources. In practice, RESTEasy Classic selects `Ite
 Build and run:
 
 ```bash
-mvn clean package -DskipTests -q
+mvn clean package
 java -jar target/quarkus-app/quarkus-run.jar
 ```
 
@@ -47,7 +46,3 @@ curl -v http://localhost:8080/items/1
 # 404 — should return "Details for: Alpha" but ItemLogsResource claims the prefix
 curl -v http://localhost:8080/items/1/details
 ```
-
-## Fix
-
-Merge both resources into a single class so there is only one root resource for the `items` prefix.
